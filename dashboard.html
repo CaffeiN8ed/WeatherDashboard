@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&family=Exo+2:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1318;
+    --bg3: #111820;
+    --border: rgba(0,200,255,0.12);
+    --accent: #00c8ff;
+    --accent2: #00ffb0;
+    --accent3: #ff6b35;
+    --warn: #ffb830;
+    --text: #e8f4f8;
+    --text2: #7fa8b8;
+    --text3: #4a6878;
+    --glow: 0 0 20px rgba(0,200,255,0.15);
+    --glow-strong: 0 0 40px rgba(0,200,255,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(0,200,255,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(0,255,176,0.03) 0%, transparent 60%);
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    grid-template-rows: 1fr 160px 220px;
+    gap: 12px;
+    padding: 16px;
+    height: 100vh;
+  }
+
+  /* ── PANEL BASE ── */
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .panel-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+
+  /* ── CLOCK CORNER OVERLAY ── */
+  .clock-corner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  #clock-time {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    text-shadow: 0 0 20px rgba(0,200,255,0.3);
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  #clock-time .colon {
+    color: var(--accent);
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0.2; } }
+
+  #clock-ampm {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 2px;
+    align-self: flex-end;
+  }
+
+  #clock-date {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text3);
+    margin-top: 2px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  /* ── WEATHER ── */
+  .weather-panel { grid-column: 1; grid-row: 1 / 3; display: flex; flex-direction: column; }
+
+  .weather-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .weather-icon {
+    font-size: 56px;
+    line-height: 1;
+    filter: drop-shadow(0 0 12px rgba(0,200,255,0.4));
+  }
+
+  .weather-temp {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .weather-temp span {
+    font-size: 28px;
+    color: var(--text2);
+    font-weight: 300;
+  }
+
+  .weather-desc {
+    font-size: 14px;
+    color: var(--text2);
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+    text-transform: capitalize;
+  }
+
+  .weather-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .stat-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 10px 12px;
+  }
+
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent2);
+  }
+
+  .stat-unit {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 300;
+  }
+
+  /* ── WIND ── */
+  .wind-panel { grid-column: 3; grid-row: 1 / 3; display: flex; flex-direction: column; justify-content: space-between; }
+
+  .wind-compass {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
+  }
+
+  .compass-ring {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    position: relative;
+    background: radial-gradient(circle, var(--bg3) 60%, var(--bg2));
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 20px rgba(0,200,255,0.08);
+  }
+
+  .compass-cardinal {
+    position: absolute;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 700;
+  }
+  .compass-N { top: 6px; left: 50%; transform: translateX(-50%); color: var(--accent); }
+  .compass-S { bottom: 6px; left: 50%; transform: translateX(-50%); }
+  .compass-E { right: 8px; top: 50%; transform: translateY(-50%); }
+  .compass-W { left: 8px; top: 50%; transform: translateY(-50%); }
+
+  .compass-needle {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 4px;
+    height: 60px;
+    margin-left: -2px;
+    margin-top: -54px;
+    transform-origin: bottom center;
+    transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .needle-north {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 48px solid var(--accent);
+    position: absolute;
+    left: -3px;
+    filter: drop-shadow(0 0 8px var(--accent));
+  }
+
+  .needle-south {
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 20px solid var(--text3);
+    position: absolute;
+    left: -2px;
+    top: 48px;
+  }
+
+  .compass-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    z-index: 2;
+  }
+
+  .wind-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  /* ── TIDE PANEL ── */
+  .tide-panel {
+    grid-column: 1 / 4;
+    grid-row: 3;
+    width: 100%;
+    min-width: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .tide-chart-wrap {
+    position: relative;
+    height: 100px;
+    margin-top: 8px;
+  }
+
+  #tide-canvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  .tide-events {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tide-event {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 6px 12px;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .tide-event-type {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+
+  .tide-event-time {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .tide-event-height {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    color: var(--accent2);
+    margin-left: auto;
+  }
+
+  .tide-high .tide-event-type { color: var(--accent); }
+  .tide-low .tide-event-type { color: var(--text3); }
+
+  /* ── WINDY MAP ── */
+  .map-panel {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+
+  .map-panel::before { display: none; }
+
+  #windy-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 4px;
+    display: block;
+  }
+
+  /* ── API KEY NOTICE ── */
+  .api-notice {
+    background: rgba(255, 184, 48, 0.08);
+    border: 1px solid rgba(255, 184, 48, 0.3);
+    border-radius: 3px;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--warn);
+    font-family: 'Share Tech Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .loading-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    position: fixed;
+    bottom: 10px;
+    right: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    z-index: 200;
+    background: var(--bg);
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .dot-green { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+  .dot-yellow { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+  .dot-red { background: #ff4444; box-shadow: 0 0 6px #ff4444; }
+
+  /* ── SETTINGS PANEL ── */
+  .settings-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 12, 16, 0.92);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+  }
+  .settings-overlay.open { display: flex; }
+
+  .settings-box {
+    background: var(--bg2);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 32px;
+    width: 480px;
+    box-shadow: var(--glow-strong);
+  }
+
+  .settings-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+  }
+
+  .settings-field { margin-bottom: 16px; }
+
+  .settings-field label {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .settings-field input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .settings-field input:focus { border-color: var(--accent); }
+
+  .settings-actions { display: flex; gap: 12px; margin-top: 24px; }
+
+  .btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-primary:hover { box-shadow: 0 0 20px rgba(0,200,255,0.5); }
+  .btn-secondary { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); }
+
+  /* gear icon trigger */
+  .gear-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text3);
+    font-size: 16px;
+    transition: all 0.2s;
+    z-index: 100;
+    opacity: 0.4;
+  }
+  .gear-btn:hover { opacity: 1; border-color: var(--accent); color: var(--accent); }
+
+  /* ── FORECAST STRIP ── */
+  .forecast-panel { grid-column: 2; grid-row: 2; padding: 0; overflow: hidden; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; }
+  .forecast-strip { display: flex; flex-direction: row; height: 100%; width: 100%; overflow: hidden; }
+  .forecast-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px 2px; border-right: 1px solid var(--border); position: relative; }
+  .forecast-col:last-child { border-right: none; }
+  .forecast-col.forecast-now { background: rgba(0,200,255,0.06); }
+  .forecast-col.forecast-now::before { content: 'NOW'; position: absolute; top: 4px; font-family: monospace; font-size: 8px; letter-spacing: 0.1em; color: var(--accent); }
+  .fc-time { font-family: monospace; font-size: 14px; color: var(--text3); margin-top: 8px; white-space: nowrap; }
+  .fc-icon { font-size: 24px; line-height: 1; }
+  .fc-temp { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 600; color: var(--text); line-height: 1; white-space: nowrap; }
+  .fc-wind { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 500; white-space: nowrap; }
+  .fc-dir { font-family: monospace; font-size: 13px; color: var(--text3); white-space: nowrap; }
+  .fc-precip { font-family: monospace; font-size: 13px; color: #5599ff; white-space: nowrap; }
+
+  /* ── HIGH/LOW TEMP ── */
+  .temp-range { display:flex; gap:10px; margin-top:12px; }
+  .temp-range-box { flex:1; background:var(--bg3); border:1px solid var(--border); border-radius:3px; padding:10px 12px; }
+  .temp-range-label { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.15em; color:var(--text3); text-transform:uppercase; margin-bottom:4px; }
+  .temp-range-val { font-family:'Rajdhani',sans-serif; font-size:28px; font-weight:600; line-height:1; }
+  .temp-high { color:#ff7043; }
+  .temp-low { color:#42a5f5; }
+
+  /* ── MOON PHASE ── */
+  .moon-section { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding-top:12px; border-top:1px solid var(--border); width:100%; margin-top:12px; }
+  .moon-label { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:0.2em; color:var(--text3); text-transform:uppercase; text-align:center; }
+  .moon-phase-name { font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:600; color:var(--text); text-align:center; letter-spacing:0.05em; }
+  .moon-illum { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--accent); letter-spacing:0.1em; text-align:center; }
+  #moon-canvas-wrap { display:flex; justify-content:center; align-items:center; width:100%; }
+  #moon-canvas-wrap canvas { display:block; }
+</style>
+</head>
+<body>
+
+<!-- ── SETTINGS OVERLAY ── -->
+<div class="settings-overlay" id="settingsOverlay">
+  <div class="settings-box">
+    <div class="settings-title">⚙ DASHBOARD CONFIG</div>
+
+    <div class="settings-field">
+      <label>Stormglass API Key</label>
+      <input type="text" id="sg-key" placeholder="Paste your Stormglass.io API key here" />
+    </div>
+
+    <div class="settings-field">
+      <label>Windy API Key</label>
+      <input type="text" id="windy-key" placeholder="Paste your Windy API key here" />
+    </div>
+
+    <div class="settings-field">
+      <label>Latitude</label>
+      <input type="text" id="cfg-lat" placeholder="e.g. 47.6588" />
+    </div>
+
+    <div class="settings-field">
+      <label>Longitude</label>
+      <input type="text" id="cfg-lng" placeholder="e.g. -122.3942" />
+    </div>
+
+    <div class="settings-field">
+      <label>Windy Map Latitude</label>
+      <input type="text" id="cfg-windy-lat" placeholder="e.g. 47.40036" />
+    </div>
+
+    <div class="settings-field">
+      <label>Windy Map Longitude</label>
+      <input type="text" id="cfg-windy-lng" placeholder="e.g. -122.24224" />
+    </div>
+
+    <div class="settings-field">
+      <label>NOAA Tide Station ID</label>
+      <input type="text" id="cfg-station" placeholder="e.g. 9447130" />
+    </div>
+
+    <div class="settings-field">
+      <label>Temperature Unit</label>
+      <input type="text" id="cfg-unit" placeholder="F or C" />
+    </div>
+
+    <div class="settings-actions">
+      <button class="btn btn-primary" onclick="saveSettings()">SAVE &amp; REFRESH</button>
+      <button class="btn btn-secondary" onclick="closeSettings()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<button class="gear-btn" onclick="openSettings()" title="Configure Dashboard">⚙</button>
+
+<!-- ── MAIN GRID ── -->
+<div class="grid">
+
+  <!-- WEATHER -->
+  <div class="panel weather-panel">
+    <div class="panel-label">◈ WEATHER — SEATTLE, WA</div>
+    <div id="weather-content">
+      <div class="loading-text">CONNECTING TO STORMGLASS...</div>
+    </div>
+    <div class="clock-corner">
+      <div id="clock-time"><span id="ch">--</span><span class="colon">:</span><span id="cm">--</span><span class="colon">:</span><span id="cs">--</span><span id="clock-ampm">--</span></div>
+      <div id="clock-date">--- · --, ----</div>
+    </div>
+  </div>
+
+
+
+  <!-- WIND -->
+  <div class="panel wind-panel">
+    <div class="panel-label">◈ WIND</div>
+    <div id="wind-content">
+      <div class="loading-text">CONNECTING TO STORMGLASS...</div>
+    </div>
+  </div>
+
+  <!-- TIDE -->
+  <div class="panel tide-panel">
+    <div class="panel-label">◈ TIDES — SEATTLE (NOAA #9447130)</div>
+    <div id="tide-content">
+      <div class="loading-text">FETCHING NOAA TIDE DATA...</div>
+    </div>
+  </div>
+
+  <!-- WINDY MAP -->
+  <div class="panel map-panel" id="map-panel">
+    <div id="windy" style="width:100%;height:100%;border-radius:4px;"></div>
+  </div>
+
+  <!-- 24H FORECAST STRIP -->
+  <div class="panel forecast-panel">
+    <div id="forecast-strip" class="forecast-strip">
+      <div style="display:flex;align-items:center;justify-content:center;width:100%;font-family:monospace;font-size:11px;color:var(--text3);">LOADING FORECAST...</div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div>
+      <span class="status-dot dot-green" id="dot-noaa"></span>NOAA
+      &nbsp;&nbsp;
+      <span class="status-dot dot-yellow" id="dot-sg"></span>STORMGLASS
+    </div>
+    <div id="last-updated">LAST UPDATED: --:--:--</div>
+    <div>SEATTLE · 47.659°N 122.394°W</div>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const DEFAULT_CONFIG = {
+  lat: 47.6588,
+  lng: -122.3942,
+  windyLat: 47.40036,
+  windyLng: -122.24224,
+  stationId: '9447130',
+  unit: 'F',
+  sgKey: '',
+  windyKey: ''
+};
+
+function getConfig() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('dashConfig') || '{}');
+    return { ...DEFAULT_CONFIG, ...stored };
+  } catch { return DEFAULT_CONFIG; }
+}
+
+function saveSettings() {
+  const cfg = {
+    sgKey: document.getElementById('sg-key').value.trim(),
+    lat: parseFloat(document.getElementById('cfg-lat').value) || DEFAULT_CONFIG.lat,
+    lng: parseFloat(document.getElementById('cfg-lng').value) || DEFAULT_CONFIG.lng,
+    windyLat: parseFloat(document.getElementById('cfg-windy-lat').value) || DEFAULT_CONFIG.windyLat,
+    windyLng: parseFloat(document.getElementById('cfg-windy-lng').value) || DEFAULT_CONFIG.windyLng,
+    stationId: document.getElementById('cfg-station').value.trim() || DEFAULT_CONFIG.stationId,
+    unit: document.getElementById('cfg-unit').value.trim().toUpperCase() === 'C' ? 'C' : 'F',
+    windyKey: document.getElementById('windy-key').value.trim()
+  };
+  localStorage.setItem('dashConfig', JSON.stringify(cfg));
+  closeSettings();
+  initDashboard();
+  // Reinit Windy map with new key/coords
+  windyInitialized = false;
+  radarLayer = null;
+  document.getElementById('windy').innerHTML = '';
+  setTimeout(initWindyMap, 300);
+}
+
+function openSettings() {
+  const cfg = getConfig();
+  document.getElementById('sg-key').value = cfg.sgKey || '';
+  document.getElementById('windy-key').value = cfg.windyKey || '';
+  document.getElementById('cfg-lat').value = cfg.lat;
+  document.getElementById('cfg-lng').value = cfg.lng;
+  document.getElementById('cfg-windy-lat').value = cfg.windyLat || DEFAULT_CONFIG.windyLat;
+  document.getElementById('cfg-windy-lng').value = cfg.windyLng || DEFAULT_CONFIG.windyLng;
+  document.getElementById('cfg-station').value = cfg.stationId;
+  document.getElementById('cfg-unit').value = cfg.unit;
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.remove('open');
+}
+
+// ── CLOCK ───────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  let h = now.getHours();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+  document.getElementById('ch').textContent = String(h).padStart(2, '0');
+  document.getElementById('cm').textContent = m;
+  document.getElementById('cs').textContent = s;
+  document.getElementById('clock-ampm').textContent = ' ' + ampm;
+
+  const days = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  document.getElementById('clock-date').textContent =
+    `${days[now.getDay()]} · ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+
+// ── WIND COLOR ───────────────────────────────────────────
+function windColor(mph) {
+  if (mph <= 5) return '#00ffb0';      // green
+  if (mph <= 8) return '#ffb830';      // yellow
+  if (mph <= 11) return '#ff6b35';     // orange
+  return '#ff3333';                     // red
+}
+// ── WEATHER ICONS ───────────────────────────────────────
+function wmoIcon(code, isDay) {
+  const icons = {
+    0: isDay ? '☀️' : '🌙',
+    1: isDay ? '🌤️' : '🌤️',
+    2: '⛅', 3: '☁️',
+    45: '🌫️', 48: '🌫️',
+    51: '🌦️', 53: '🌦️', 55: '🌧️',
+    61: '🌧️', 63: '🌧️', 65: '🌧️',
+    71: '🌨️', 73: '🌨️', 75: '❄️',
+    80: '🌦️', 81: '🌧️', 82: '⛈️',
+    95: '⛈️', 96: '⛈️', 99: '⛈️'
+  };
+  return icons[code] || '🌡️';
+}
+
+function wmoDesc(code) {
+  const d = {
+    0:'Clear sky',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',
+    45:'Foggy',48:'Icy fog',
+    51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',
+    61:'Light rain',63:'Rain',65:'Heavy rain',
+    71:'Light snow',73:'Snow',75:'Heavy snow',
+    80:'Rain showers',81:'Heavy showers',82:'Violent showers',
+    95:'Thunderstorm',96:'Thunderstorm w/ hail',99:'Thunderstorm w/ hail'
+  };
+  return d[code] || 'Unknown';
+}
+
+function windDir(deg) {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+
+// ── STORMGLASS WEATHER ──────────────────────────────────
+async function fetchWeather() {
+  const cfg = getConfig();
+  const sgDot = document.getElementById('dot-sg');
+
+  if (!cfg.sgKey) {
+    renderWeatherNoKey();
+    renderWindNoKey();
+    sgDot.className = 'status-dot dot-yellow';
+    return;
+  }
+
+  try {
+    const now = new Date();
+    // Use unix timestamps (seconds) — more reliable than ISO strings for Stormglass
+    const startTs = Math.floor(now.getTime() / 1000);
+    const endTs = startTs + 3600;
+    const params = [
+      'airTemperature','humidity','cloudCover','precipitation',
+      'windSpeed','windDirection','gust','visibility',
+      'pressure'
+    ].join(',');
+
+    const url = `https://api.stormglass.io/v2/weather/point?lat=${cfg.lat}&lng=${cfg.lng}&params=${params}&start=${startTs}&end=${endTs}`;
+
+
+    console.log("=== STORMGLASS DEBUG ===");
+    console.log("URL:", url);
+    console.log("Key first 8:", cfg.sgKey ? cfg.sgKey.substring(0,8)+"..." : "EMPTY");
+    console.log("Key length:", cfg.sgKey ? cfg.sgKey.length : 0);
+    const res = await fetch(url, {
+      headers: { 'Authorization': cfg.sgKey }
+    });
+
+    console.log("HTTP status:", res.status);
+    if (!res.ok) { const errText = await res.text(); console.log("Error body:", errText); throw new Error("Stormglass: " + res.status); }
+    const data = await res.json();
+    const pt = data.hours[0];
+
+    const tempC = getVal(pt.airTemperature);
+    // Compute high/low from available hours
+    const allTemps = (data.hours || [pt]).map(h => {
+      const c = getVal(h.airTemperature);
+      return cfg.unit === 'F' ? Math.round(c * 9/5 + 32) : Math.round(c);
+    });
+    const highTemp = Math.max(...allTemps);
+    const lowTemp = Math.min(...allTemps);
+    const temp = cfg.unit === 'F' ? Math.round(tempC * 9/5 + 32) : Math.round(tempC);
+    const unit = cfg.unit === 'F' ? '°F' : '°C';
+    const humidity = Math.round(getVal(pt.humidity));
+    const windSpeedMs = getVal(pt.windSpeed);
+    const windSpeedMph = Math.round(windSpeedMs * 2.237);
+    const windSpeedKts = Math.round(windSpeedMs * 1.944);
+    const windDeg = Math.round(getVal(pt.windDirection));
+    const windGustMs = getVal(pt.gust);
+    const windGustMph = Math.round(windGustMs * 2.237);
+    const cloud = Math.round(getVal(pt.cloudCover));
+    const pressure = Math.round(getVal(pt.pressure));
+    const vis = (getVal(pt.visibility) / 1000).toFixed(1);
+
+    // Weather panel
+    const isDay = now.getHours() >= 6 && now.getHours() < 20;
+    let wcode = 0;
+    if (cloud > 80) wcode = 3;
+    else if (cloud > 50) wcode = 2;
+    else if (cloud > 20) wcode = 1;
+    if (getVal(pt.precipitation) > 1) wcode = 63;
+
+    document.getElementById('weather-content').innerHTML = `
+      <div class="weather-main">
+        <div class="weather-icon">${wmoIcon(wcode, isDay)}</div>
+        <div>
+          <div class="weather-temp">${temp}<span>${unit}</span></div>
+          <div class="weather-desc">${wmoDesc(wcode)}</div>
+        </div>
+      </div>
+      <div class="weather-stats">
+        <div class="stat-box">
+          <div class="stat-label">Humidity</div>
+          <div class="stat-value">${humidity}<span class="stat-unit"> %</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Cloud Cover</div>
+          <div class="stat-value">${cloud}<span class="stat-unit"> %</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Pressure</div>
+          <div class="stat-value">${pressure}<span class="stat-unit"> hPa</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Visibility</div>
+          <div class="stat-value">${vis}<span class="stat-unit"> km</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Precipitation</div>
+          <div class="stat-value">${Math.round(getVal(pt.precipitation) * 10) / 10}<span class="stat-unit"> mm</span></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Feels Like</div>
+          <div class="stat-value">${temp}<span class="stat-unit"> ${unit}</span></div>
+        </div>
+      </div>
+      <div class="temp-range">
+        <div class="temp-range-box">
+          <div class="temp-range-label">HIGH</div>
+          <div class="temp-range-val temp-high">${highTemp}°</div>
+        </div>
+        <div class="temp-range-box">
+          <div class="temp-range-label">LOW</div>
+          <div class="temp-range-val temp-low">${lowTemp}°</div>
+        </div>
+      </div>`;
+
+    // Wind panel
+    document.getElementById('wind-content').innerHTML = `
+      <div style="margin-bottom:8px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:${windColor(windSpeedMph)};">
+          ${windSpeedMph} <span style="font-size:18px;color:var(--text2);font-weight:300;">mph</span>
+        </div>
+        <div style="font-family:monospace;font-size:11px;color:var(--text3);letter-spacing:0.1em;">
+          ${windSpeedKts} KTS &nbsp;·&nbsp; GUSTS ${windGustMph} MPH
+        </div>
+      </div>
+      <div class="wind-compass">
+        <div class="compass-ring">
+          <span class="compass-cardinal compass-N">N</span>
+          <span class="compass-cardinal compass-S">S</span>
+          <span class="compass-cardinal compass-E">E</span>
+          <span class="compass-cardinal compass-W">W</span>
+          <div class="compass-needle" id="compass-needle" style="transform:rotate(${windDeg}deg)">
+            <div class="needle-north"></div>
+            <div class="needle-south"></div>
+          </div>
+          <div class="compass-center"></div>
+        </div>
+      </div>
+      <div class="wind-stats">
+        <div class="stat-box">
+          <div class="stat-label">Direction</div>
+          <div class="stat-value" style="font-size:26px;">${windDir(windDeg)}</div>
+          <div style="font-family:monospace;font-size:10px;color:var(--text3);">${windDeg}°</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Gust</div>
+          <div class="stat-value" style="color:${windColor(windGustMph)}">${windGustMph}<span class="stat-unit"> mph</span></div>
+        </div>
+      </div>
+      <div class="moon-section">
+        <div class="moon-label">MOON PHASE</div>
+        <div id="moon-canvas-wrap"></div>
+        <div class="moon-phase-name" id="moon-phase-name"></div>
+        <div class="moon-illum" id="moon-illum"></div>
+      </div>`;
+
+    renderMoonPhase();
+
+    sgDot.className = 'status-dot dot-green';
+    updateTimestamp();
+
+  } catch(e) {
+    console.error(e);
+    sgDot.className = 'status-dot dot-red';
+    renderWeatherError(e.message);
+  }
+}
+
+function getVal(obj) {
+  if (!obj) return 0;
+  // Stormglass returns weighted averages — prefer 'sg' source
+  if (obj.sg !== undefined) return obj.sg;
+  const vals = Object.values(obj).filter(v => v !== null && !isNaN(v));
+  return vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : 0;
+}
+
+function renderWeatherNoKey() {
+  document.getElementById('weather-content').innerHTML = `
+    <div class="api-notice">⚠ NO API KEY — click ⚙ to configure</div>
+    <div style="font-size:12px;color:var(--text3);font-family:monospace;line-height:1.8;">
+      Stormglass.io provides:<br>
+      · Temperature · Humidity<br>
+      · Cloud cover · Pressure<br>
+      · UV index · Visibility<br><br>
+      Get a free key at stormglass.io
+    </div>`;
+}
+
+function renderWindNoKey() {
+  document.getElementById('wind-content').innerHTML = `
+    <div class="api-notice">⚠ NO API KEY</div>
+    <div class="wind-compass">
+      <div class="compass-ring">
+        <span class="compass-cardinal compass-N">N</span>
+        <span class="compass-cardinal compass-S">S</span>
+        <span class="compass-cardinal compass-E">E</span>
+        <span class="compass-cardinal compass-W">W</span>
+        <div class="compass-needle" id="compass-needle" style="transform:rotate(0deg)">
+          <div class="needle-north"></div>
+          <div class="needle-south"></div>
+        </div>
+        <div class="compass-center"></div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);font-family:monospace;text-align:center;">
+      WIND SPEED · DIRECTION · GUSTS<br>POWERED BY STORMGLASS.IO
+    </div>`;
+}
+
+function renderWeatherError(msg) {
+  document.getElementById('weather-content').innerHTML =
+    `<div class="api-notice">⚠ ${msg}</div>`;
+  document.getElementById('wind-content').innerHTML =
+    `<div class="api-notice">⚠ ${msg}</div>`;
+}
+
+// ── NOAA TIDES ──────────────────────────────────────────
+async function fetchTides() {
+  const cfg = getConfig();
+  const noaaDot = document.getElementById('dot-noaa');
+
+  try {
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0,10).replace(/-/g,'');
+
+    // Get today's tide predictions
+    const url = `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?` +
+      `begin_date=${dateStr}&end_date=${dateStr}&station=${cfg.stationId}` +
+      `&product=predictions&datum=MLLW&time_zone=lst_ldt&interval=hilo&units=english&application=dashboard&format=json`;
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`NOAA: ${res.status}`);
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error.message);
+
+    const predictions = data.predictions;
+
+    // Also get 10-min interval data for chart
+    const chartUrl = `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?` +
+      `begin_date=${dateStr}&end_date=${dateStr}&station=${cfg.stationId}` +
+      `&product=predictions&datum=MLLW&time_zone=lst_ldt&interval=10&units=english&application=dashboard&format=json`;
+
+    const chartRes = await fetch(chartUrl);
+    const chartData = await chartRes.json();
+
+    renderTides(predictions, chartData.predictions || []);
+    noaaDot.className = 'status-dot dot-green';
+    updateTimestamp();
+
+  } catch(e) {
+    console.error(e);
+    noaaDot.className = 'status-dot dot-red';
+    document.getElementById('tide-content').innerHTML =
+      `<div class="api-notice">⚠ NOAA error: ${e.message}</div>`;
+  }
+}
+
+function renderTides(hilos, chartPts) {
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+
+  // Find next events
+  const upcoming = hilos.filter(p => {
+    const [hh, mm] = p.t.split(' ')[1].split(':').map(Number);
+    return hh * 60 + mm >= nowMins;
+  }).slice(0, 4);
+
+  const eventsHtml = upcoming.map(p => {
+    const [datePart, timePart] = p.t.split(' ');
+    const [hh, mm] = timePart.split(':').map(Number);
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const h12 = hh % 12 || 12;
+    const isHigh = p.type === 'H';
+    return `
+      <div class="tide-event ${isHigh ? 'tide-high' : 'tide-low'}">
+        <div>
+          <div class="tide-event-type">${isHigh ? '▲ HIGH' : '▼ LOW'}</div>
+          <div class="tide-event-time">${h12}:${String(mm).padStart(2,'0')} ${ampm}</div>
+        </div>
+        <div class="tide-event-height">${parseFloat(p.v).toFixed(1)} ft</div>
+      </div>`;
+  }).join('');
+
+  // Draw tide chart
+  const canvasId = 'tide-canvas-' + Date.now();
+  document.getElementById('tide-content').innerHTML = `
+    <div class="tide-chart-wrap">
+      <canvas id="${canvasId}" style="width:100%;height:100%;"></canvas>
+    </div>
+    <div class="tide-events">${eventsHtml}</div>`;
+
+  // Draw on canvas
+  requestAnimationFrame(() => {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || !chartPts.length) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    const W = canvas.width, H = canvas.height;
+
+    const vals = chartPts.map(p => parseFloat(p.v));
+    const times = chartPts.map(p => {
+      const [,t] = p.t.split(' ');
+      const [hh,mm] = t.split(':').map(Number);
+      return hh * 60 + mm;
+    });
+
+    const minV = Math.min(...vals);
+    const maxV = Math.max(...vals);
+    const pad = (H - 20);
+
+    const toX = i => (times[i] / 1440) * W;
+    const toY = v => H - 10 - ((v - minV) / (maxV - minV)) * pad;
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, 'rgba(0,200,255,0.3)');
+    grad.addColorStop(1, 'rgba(0,200,255,0.02)');
+
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    ctx.lineTo(toX(0), toY(vals[0]));
+    for (let i = 1; i < vals.length - 1; i++) {
+      const cpx = (toX(i) + toX(i+1)) / 2;
+      const cpy = (toY(vals[i]) + toY(vals[i+1])) / 2;
+      ctx.quadraticCurveTo(toX(i), toY(vals[i]), cpx, cpy);
+    }
+    ctx.lineTo(toX(vals.length-1), toY(vals[vals.length-1]));
+    ctx.lineTo(W, H);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    ctx.moveTo(toX(0), toY(vals[0]));
+    for (let i = 1; i < vals.length - 1; i++) {
+      const cpx = (toX(i) + toX(i+1)) / 2;
+      const cpy = (toY(vals[i]) + toY(vals[i+1])) / 2;
+      ctx.quadraticCurveTo(toX(i), toY(vals[i]), cpx, cpy);
+    }
+    ctx.strokeStyle = 'rgba(0,200,255,0.8)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Current time marker
+    const nowX = (nowMins / 1440) * W;
+    ctx.beginPath();
+    ctx.moveTo(nowX, 0);
+    ctx.lineTo(nowX, H);
+    ctx.strokeStyle = 'rgba(255,107,53,0.8)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Hour labels
+    ctx.font = '9px "Share Tech Mono"';
+    ctx.fillStyle = 'rgba(74,104,120,0.8)';
+    [0,6,12,18,24].forEach(h => {
+      const x = (h / 24) * W;
+      const label = h === 0 ? '12A' : h < 12 ? `${h}A` : h === 12 ? '12P' : `${h-12}P`;
+      ctx.fillText(label, x + 2, H - 2);
+    });
+  });
+}
+
+// ── UTILS ───────────────────────────────────────────────
+function updateTimestamp() {
+  const now = new Date();
+  document.getElementById('last-updated').textContent =
+    `LAST UPDATED: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+}
+
+// ── WINDY MAP ───────────────────────────────────────────
+let windyMap = null;
+let radarLayer = null;
+let windyInitialized = false;
+
+function initWindyMap() {
+  const cfg = getConfig();
+  const key = cfg.windyKey || '';
+  if (!key) {
+    document.getElementById('windy').innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:monospace;font-size:11px;color:rgba(74,104,120,0.8);letter-spacing:0.1em;">WINDY API KEY REQUIRED — PRESS S TO CONFIGURE</div>';
+    return;
+  }
+
+  const wLat = cfg.windyLat || DEFAULT_CONFIG.windyLat;
+  const wLng = cfg.windyLng || DEFAULT_CONFIG.windyLng;
+
+  // Windy API requires options on window before script loads
+  window.windyConfig = {
+    key,
+    lat: wLat,
+    lon: wLng,
+    zoom: 9,
+    overlay: 'wind',
+    level: 'surface',
+    hourFormat: '12h',
+    graticule: false,
+    logo: false,
+  };
+
+  // If already loaded, just reinit
+  if (windyInitialized && windyMap) {
+    windyMap.setView([wLat, wLng], 10);
+    return;
+  }
+
+  // Remove any previously inserted script
+  const oldScript = document.getElementById('windy-script');
+  if (oldScript) oldScript.remove();
+
+  // Windy requires Leaflet 1.4.0 loaded first
+  const loadWindy = () => {
+    const script = document.createElement('script');
+    script.id = 'windy-script';
+    script.src = 'https://api.windy.com/assets/map-forecast/libBoot.js';
+    script.onload = () => {
+      console.log('Windy script loaded, windyInit available:', typeof windyInit);
+      if (typeof windyInit !== 'undefined') {
+        launchWindy(key, wLat, wLng);
+      } else {
+        document.getElementById('windy').innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:monospace;font-size:11px;color:rgba(200,50,50,0.8);">WINDY API KEY MAY BE INVALID — CHECK KEY IN SETTINGS</div>';
+      }
+    };
+    script.onerror = () => {
+      document.getElementById('windy').innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:monospace;font-size:11px;color:rgba(200,50,50,0.8);">WINDY SCRIPT FAILED TO LOAD</div>';
+    };
+    document.head.appendChild(script);
+  };
+
+  if (typeof L === 'undefined') {
+    const leaflet = document.createElement('script');
+    leaflet.src = 'https://unpkg.com/leaflet@1.4.0/dist/leaflet.js';
+    leaflet.onload = loadWindy;
+    document.head.appendChild(leaflet);
+    // Also add Leaflet CSS
+    const leafletCss = document.createElement('link');
+    leafletCss.rel = 'stylesheet';
+    leafletCss.href = 'https://unpkg.com/leaflet@1.4.0/dist/leaflet.css';
+    document.head.appendChild(leafletCss);
+  } else {
+    loadWindy();
+  }
+}
+
+function launchWindy(key, wLat, wLng) {
+  const options = {
+    key,
+    lat: wLat,
+    lon: wLng,
+    zoom: 9,
+    overlay: 'wind',
+    level: 'surface',
+    hourFormat: '12h',
+    graticule: false,
+    logo: false,
+  };
+
+  windyInit(options, (windyAPI) => {
+    const { map, store, picker } = windyAPI;
+    windyMap = map;
+    windyInitialized = true;
+    console.log('Windy map initialized successfully');
+
+    // Don't open picker - we'll use our own forecast strip below
+
+    // Hide UI controls after render
+    setTimeout(() => {
+      ['#bottom', '#logo-wrapper', '#mobile-ovr-select', '.prog-line'].forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => el.style.display = 'none');
+      });
+      const ctrl = document.querySelector('.leaflet-control-container');
+      if (ctrl) ctrl.style.display = 'none';
+    }, 1500);
+
+    addRadarLayer(map);
+  });
+}
+
+
+
+function addRadarLayer(map) {
+  // Fetch latest RainViewer radar timestamps
+  fetch('https://api.rainviewer.com/public/weather-maps.json')
+    .then(r => r.json())
+    .then(data => {
+      const frames = data.radar && data.radar.past;
+      if (!frames || !frames.length) return;
+      const latest = frames[frames.length - 1];
+      const tileUrl = `https://tilecache.rainviewer.com${latest.path}/256/{z}/{x}/{y}/2/1_1.png`;
+
+      if (radarLayer) map.removeLayer(radarLayer);
+      if (typeof L === "undefined") return;
+      radarLayer = L.tileLayer(tileUrl, {
+        opacity: 0.5,
+        attribution: 'RainViewer',
+        zIndex: 10,
+        maxNativeZoom: 6,
+        maxZoom: 12
+      });
+      radarLayer.addTo(map);
+
+      // Refresh radar every 5 minutes
+      setTimeout(() => { if (windyInitialized) addRadarLayer(map); }, 5 * 60 * 1000);
+    })
+    .catch(e => console.warn('RainViewer error:', e));
+}
+
+
+// ── 24H FORECAST STRIP ──────────────────────────────────
+async function fetchForecast() {
+  const cfg = getConfig();
+  if (!cfg.sgKey) return;
+
+  try {
+    const now = new Date();
+    const startTs = Math.floor(now.getTime() / 1000);
+    const endTs = startTs + 25 * 3600;
+    const params = ['airTemperature','windSpeed','windDirection','precipitation','cloudCover'].join(',');
+    const url = `https://api.stormglass.io/v2/weather/point?lat=${cfg.lat}&lng=${cfg.lng}&params=${params}&start=${startTs}&end=${endTs}`;
+
+    const res = await fetch(url, { headers: { 'Authorization': cfg.sgKey } });
+    if (!res.ok) return;
+    const data = await res.json();
+
+    renderForecastStrip(data.hours, cfg.unit);
+  } catch(e) {
+    console.warn('Forecast fetch error:', e);
+  }
+}
+
+function renderForecastStrip(hours, unit) {
+  if (!hours || !hours.length) return;
+
+  // Sample every 3 hours
+  const sampled = hours.filter((_, i) => i % 3 === 0).slice(0, 9);
+  const now = new Date();
+
+  const cols = sampled.map((h, i) => {
+    const t = new Date(h.time);
+    const hrs = t.getHours();
+    const ampm = hrs >= 12 ? 'PM' : 'AM';
+    const h12 = hrs % 12 || 12;
+    const timeLabel = h12 + (ampm === 'AM' ? 'A' : 'P');
+
+    const tempC = getVal(h.airTemperature);
+    const temp = unit === 'F' ? Math.round(tempC * 9/5 + 32) : Math.round(tempC);
+    const windMs = getVal(h.windSpeed);
+    const windMph = Math.round(windMs * 2.237);
+    const windDeg = Math.round(getVal(h.windDirection));
+    const precip = (getVal(h.precipitation) || 0).toFixed(1);
+    const cloud = Math.round(getVal(h.cloudCover));
+
+    const isDay = hrs >= 6 && hrs < 20;
+    let wcode = cloud > 80 ? 3 : cloud > 50 ? 2 : cloud > 20 ? 1 : 0;
+    if (parseFloat(precip) > 0.5) wcode = 63;
+
+    const isNow = i === 0;
+    const precipHtml = parseFloat(precip) > 0 
+      ? `<div class="fc-precip">${precip}mm</div>` : '';
+
+    return `<div class="forecast-col${isNow ? ' forecast-now' : ''}">
+      <div class="fc-time">${timeLabel}</div>
+      <div class="fc-icon">${wmoIcon(wcode, isDay)}</div>
+      <div class="fc-temp">${temp}°</div>
+      <div class="fc-wind" style="color:${windColor(windMph)}">${windMph}<span style="font-size:10px;color:var(--text3);">mph</span></div>
+      <div class="fc-dir">${windDir(windDeg)}</div>
+      ${precipHtml}
+    </div>`;
+  }).join('');
+
+  document.getElementById('forecast-strip').innerHTML = cols;
+}
+
+
+// ── MOON PHASE ──────────────────────────────────────────
+function getMoonPhase() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+
+  // Simple moon phase algorithm (JDN method)
+  let jd = 367 * year - Math.floor(7 * (year + Math.floor((month + 9) / 12)) / 4)
+    + Math.floor(275 * month / 9) + day + 1721013.5;
+  const phase = ((jd - 2451550.1) / 29.53058868) % 1;
+  const normalized = phase < 0 ? phase + 1 : phase;
+  const illumination = Math.round((1 - Math.cos(normalized * 2 * Math.PI)) / 2 * 100);
+
+  let name;
+  if (normalized < 0.03 || normalized > 0.97) name = 'New Moon';
+  else if (normalized < 0.22) name = 'Waxing Crescent';
+  else if (normalized < 0.28) name = 'First Quarter';
+  else if (normalized < 0.47) name = 'Waxing Gibbous';
+  else if (normalized < 0.53) name = 'Full Moon';
+  else if (normalized < 0.72) name = 'Waning Gibbous';
+  else if (normalized < 0.78) name = 'Last Quarter';
+  else name = 'Waning Crescent';
+
+  return { phase: normalized, illumination, name };
+}
+
+function renderMoonPhase() {
+  const wrap = document.getElementById('moon-canvas-wrap');
+  const nameEl = document.getElementById('moon-phase-name');
+  const illumEl = document.getElementById('moon-illum');
+  if (!wrap || !nameEl) return;
+
+  const { phase, illumination, name } = getMoonPhase();
+
+  // Draw moon on canvas
+  const size = 80;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const cx = size / 2, cy = size / 2, r = size / 2 - 4;
+
+  // Dark background circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = '#0d1318';
+  ctx.fill();
+
+  // Lit portion
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.clip();
+
+  ctx.fillStyle = '#e8d870';
+  ctx.shadowColor = 'rgba(232,216,112,0.4)';
+  ctx.shadowBlur = 10;
+
+  if (phase < 0.5) {
+    // Waxing: right side lit
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.PI / 2, 3 * Math.PI / 2);
+    const stretch = Math.cos(phase * 2 * Math.PI);
+    ctx.bezierCurveTo(cx + stretch * r, cy - r, cx + stretch * r, cy + r, cx, cy + r);
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    // Waning: left side lit
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2);
+    const stretch = -Math.cos(phase * 2 * Math.PI);
+    ctx.bezierCurveTo(cx - stretch * r, cy + r, cx - stretch * r, cy - r, cx, cy - r);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Outer ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0,200,255,0.15)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  wrap.innerHTML = '';
+  wrap.appendChild(canvas);
+
+  nameEl.textContent = name;
+  illumEl.textContent = illumination + '% ILLUMINATED';
+}
+
+// ── INIT ────────────────────────────────────────────────
+function initDashboard() {
+  fetchWeather();
+  fetchTides();
+  fetchForecast();
+}
+
+// Show settings on first load if no key configured
+window.addEventListener('load', () => {
+  initDashboard();
+  renderMoonPhase();
+  const cfg = getConfig();
+  // Init Windy after a short delay to let DOM settle
+  setTimeout(initWindyMap, 500);
+  if (!cfg.sgKey || !cfg.windyKey) {
+    setTimeout(openSettings, 800);
+  }
+});
+
+// Auto-refresh every 10 minutes
+setInterval(initDashboard, 10 * 60 * 1000);
+
+// Keyboard shortcut: press 'S' to open settings
+document.addEventListener('keydown', e => {
+  if (e.key === 's' || e.key === 'S') openSettings();
+  if (e.key === 'Escape') closeSettings();
+});
+</script>
+</body>
+</html>
